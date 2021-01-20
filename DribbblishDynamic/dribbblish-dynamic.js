@@ -322,7 +322,7 @@ async function songchange() {
     } else if (Spicetify.Player.data.track.metadata.is_local=="true") {
         // local?
         nearTrackSpan.innerText = ""
-        nearArtistSpan.innerText = Spicetify.Player.data.track.metadata.album_title
+        nearArtistSpan.innerText = " — " + Spicetify.Player.data.track.metadata.album_title
     } else {
         // When clicking a song from the homepage, songChange is fired with half empty metadata
         // todo: retry only once?

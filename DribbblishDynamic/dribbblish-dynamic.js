@@ -318,7 +318,7 @@ async function songchange() {
     } else if (Spicetify.Player.data.track.metadata.album_track_number==0) {
         // podcast?
         nearTrackSpan.innerText = ""
-        nearArtistSpan.innerText = Spicetify.Player.data.track.metadata.album_title
+        nearArtistSpan.innerText = " — " + Spicetify.Player.data.track.metadata.album_title
     } else if (Spicetify.Player.data.track.metadata.is_local=="true") {
         // local?
         nearTrackSpan.innerText = ""

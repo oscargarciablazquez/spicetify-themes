@@ -1439,7 +1439,7 @@ button#player-button-repeat,
     width: calc(100% - var(--sidebar-width) - var(--main-gap));
     height: calc(100% - var(--bar-height) - var(--main-gap) * 2);
     left: var(--sidebar-width);
-    top: calc(var(--os-windows-top-gap) * 30px + 10px);
+    top: var(--main-gap);
     border-radius: var(--main-corner-radius) var(--main-corner-radius) 0 0;
     overflow: hidden;
 }
@@ -1497,7 +1497,7 @@ button[data-button=add-recommendation] {
     width: calc(100% - var(--sidebar-width) - var(--main-gap));
     height: calc(100% - var(--main-gap) * 2);
     left: var(--sidebar-width);
-    top: calc(var(--os-windows-top-gap) * 30px + 10px);
+    top: var(--main-gap);
     box-shadow: 0 0 10px 3px #0000003b;
     border-radius: var(--main-corner-radius);
     z-index: 1;

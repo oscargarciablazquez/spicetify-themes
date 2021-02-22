@@ -1,23 +1,20 @@
 :root {
-	--bar-height: 70px;
-	--bar-cover-art-size: 52px;
-	--large-album-art: 225px;
-	--cover-border-radius: 8px;
-	--section-border-radius: 8px;
-	--sidebar-width: 85px;
-	--main-corner-radius: 15px;
-	--main-gap: 10px;
-	/* If you are using SpotifyNoControl.exe, set this variable to 0 */
-	--os-windows-icon-dodge: 1;
-    /* If you don't want to use SpotifyNoControl.exe and want your top-gap fancy set this variable to 1 */
-	/* IMPORTANT: This option only works with --os-windows-icon-dodge set to 1 */
-	--os-windows-top-gap: 1;
-	--image_url: '';
-	--is_light: 0;
+    --bar-height: 70px;
+    --bar-cover-art-size: 52px;
+    --large-album-art: 225px;
+    --cover-border-radius: 8px;
+    --section-border-radius: 8px;
+    --sidebar-width: 85px;
+    --main-corner-radius: 15px;
+    --main-gap: 10px;
+    /* If you are using SpotifyNoControl.exe, set this variable to 0 */
+    --os-windows-icon-dodge: 1;
+    --image_url: '';
+    --is_light: 0;
 }
 
 div#popover-container::before {
-    content: "You haven't installed 'dribbblish.js' extension. Please run follow instruction on theme README page.";
+    content: "You haven't installed 'dribbblish-dynamic.js' extension. Please follow instructions on theme README page.";
     font-size: 30px;
 }
 
@@ -50,9 +47,9 @@ div#popover-container::before {
 }
 
 body {
-	--glue-font-family: "Google Sans Display", "spotify-circular", "Noto Sans CJK JP Bold", "spotify-circular-cyrillic", "spotify-circular-arabic", "spotify-circular-hebrew", "Helvetica Neue", Helvetica, Arial, "Hiragino Kaku Gothic Pro", "Meiryo", "MS Gothic", sans-serif;
-	--info-font-family: "Roboto", "spotify-circular", "Noto Sans CJK JP Thin", "spotify-circular-cyrillic", "spotify-circular-arabic", "spotify-circular-hebrew", "Helvetica Neue", Helvetica, Arial, "Hiragino Kaku Gothic Pro", "Meiryo", "MS Gothic", sans-serif;
-	letter-spacing: 0;
+    --glue-font-family: "Google Sans Display", "spotify-circular", "Noto Sans CJK JP Bold", "spotify-circular-cyrillic", "spotify-circular-arabic", "spotify-circular-hebrew", "Helvetica Neue", Helvetica, Arial, "Hiragino Kaku Gothic Pro", "Meiryo", "MS Gothic", sans-serif;
+    --info-font-family: "Roboto", "spotify-circular", "Noto Sans CJK JP Thin", "spotify-circular-cyrillic", "spotify-circular-arabic", "spotify-circular-hebrew", "Helvetica Neue", Helvetica, Arial, "Hiragino Kaku Gothic Pro", "Meiryo", "MS Gothic", sans-serif;
+    letter-spacing: 0;
 }
 
 /*Round corner cover image*/
@@ -67,9 +64,8 @@ body {
     overflow: hidden !important;
 }
 
-/*Hide some annoying elements like profile name and pic, upgrade button and device connect bar at bottom */
+/*Hide some annoying elements like upgrade button and device connect bar at bottom */
 
-.profile.content-top-bar__profile-link,
 .upgrade-button,
 .view-player .remote-playback-bar {
     display: none !important;
@@ -221,19 +217,11 @@ body {
     margin-left: 8px;
 }
 
+.content-top-bar__profile,
 .SearchInput__input,
 .SearchInput__searchIcon,
 .SearchInput__clearButton {
     margin-top: 15px !important;
-}
-
-.content-top-bar__profile-menu-button {
-    margin-top: 15px !important;
-}
-
-.body-container--windows:not(.with-buddy-list):not(.messagebar) .content-top-bar__profile {
-	margin-right: calc(var(--os-windows-icon-dodge) * 110px) !important;
-	margin-top: calc(var(--os-windows-icon-dodge) * -5px);
 }
 
 /* Spice up Fullscreen mode */
@@ -353,24 +341,6 @@ body {
     overflow: visible !important;
 }
 
-/* Profile arrow in top left */
-
-.content-top-bar__profile-menu-button .dropdown {
-    position: fixed !important;
-    top: 10px !important;
-    -webkit-app-region: no-drag !important;
-}
-
-/* [WINDOWS] Change Profile menu horizontal position */
-
-body.body-container--windows .content-top-bar__profile-menu-button .dropdown {
-	right: calc(var(--os-windows-icon-dodge) * 170px - var(--os-windows-top-gap) * 170px + 20px) !important;
-}
-
-body:not(.body-container--windows) .content-top-bar__profile-menu-button .dropdown {
-    right: 20px !important;
-}
-
 /* Small tooltip */
 
 #tooltip,
@@ -443,7 +413,7 @@ body:not(.body-container--windows) .content-top-bar__profile-menu-button .dropdo
 .Button--style-icon-background:hover,
 .button.button-icon-with-stroke:hover {
     transform: none !important;
-    background-color: var(--modspotify_indicator_fg_and_button_bg) !important;
+    background-color: var(--modspotify_sidebar_indicator_and_hover_button_bg) !important;
     box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.1), 0 1px 3px 0 rgba(0, 0, 0, 0.26) !important;
 }
 
@@ -648,7 +618,11 @@ body.remotebar .view-player .player-bar-wrapper {
 }
 
 .body-container--windows .LeftSidebar {
-	margin-top: calc(var(--os-windows-icon-dodge) * 30px);
+    margin-top: calc(var(--os-windows-icon-dodge) * 30px);
+}
+
+.body-container--mac .LeftSidebar {
+    margin-top: 24px;
 }
 
 .RootlistItem--is-active:before {
@@ -674,6 +648,24 @@ body.remotebar .view-player .player-bar-wrapper {
 .SidebarListItem__play-button .Button {
     width: 32px;
     height: 32px;
+}
+
+/* Download and offline bottom bars */
+
+.offline-label-wrapper,
+.sidebar #offline-global-progress {
+    bottom: calc(var(--bar-height) + var(--main-gap));
+    left: calc(var(--sidebar-width));
+    z-index: 4;
+    margin-right: 24px;
+    position: absolute;
+}
+
+.offline-label-wrapper {
+    background-color: var(--modspotify_sidebar_and_player_bg)
+}
+.sidebar #offline-global-progress p {
+    background-color: var(--modspotify_main_fg) !important;
 }
 
 /* Mood card */
@@ -960,7 +952,7 @@ select {
 /* Toggle button */
 
 .slider {
-    background: var(--modspotify_secondary_fg);
+    background: var(--modspotify_miscellaneous_bg);
     border: 0;
     height: 18px;
     border-radius: 9px;
@@ -1231,7 +1223,16 @@ button#player-button-repeat,
 
 /* Connect Device Popup */
 
-.ConnectPopup__device--active, .ConnectPopup__device--active:hover, .ConnectPopup__device--active .ConnectPopup__device-info, .ConnectPopup__device--active .ConnectPopup__device-title,
+.ConnectPopup__device--active,
+.ConnectPopup__device--active .ConnectPopup__device-info,
+.ConnectPopup__device--active .ConnectPopup__device-title {
+    color: var(--modspotify_preserve_1);
+}
+
+.ConnectPopup__device--active,
+.ConnectPopup__device--active:hover,
+.ConnectPopup__device--active .ConnectPopup__device-info,
+.ConnectPopup__device--active .ConnectPopup__device-title,
 .ConnectDevicePicker__button--with-badge:after {
     background-color: var(--modspotify_main_fg);
 }
@@ -1249,7 +1250,7 @@ button#player-button-repeat,
 
 .button.button-blue {
     background-color: var(--modspotify_main_fg);
-    color: var(--modspotify_secondary_fg);
+    color: var(--modspotify_preserve_1);
 }
 
 /* Volume bar */
@@ -1273,8 +1274,8 @@ button#player-button-repeat,
 
 /* Notification */
 .notification-bubble-container>div {
-    background: var(--modspotify_main_fg);
-    color: var(--modspotify_secondary_fg);
+    background-color: var(--modspotify_main_fg);
+    color: var(--modspotify_preserve_1);
 }
 
 .view-player .text-container .text-item-container .text-item .scroll-text-container:after {
@@ -1512,6 +1513,11 @@ button[data-button=add-recommendation] {
     pointer-events: none;
 }
 
+#content .app-content, #tracklist-container {
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+}
+
 #video-player::before, .main-view-wrapper::before {
     content: '';
     background-image: var(--image_url);
@@ -1533,6 +1539,10 @@ button[data-button=add-recommendation] {
 
 #video-player::before {
     z-index: +1;
+    opacity: 0;
+}
+
+.video-full-screen-art  #video-player::before {
     opacity: calc(0.5 + 0.2 * var(--is_light, 0));
 }
 

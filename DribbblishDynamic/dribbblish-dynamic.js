@@ -41,9 +41,6 @@ function waitForElement(els, func, timeout = 100) {
     }
 }
 
-// Add "Open User Profile" item in profile menu
-new Spicetify.Menu.Item(window.__spotify.username, false, () => window.open(window.__spotify.userUri)).register();
-
 waitForElement([".LeftSidebar", ".LeftSidebar__section--rootlist .SidebarList__list"], (queries) => {
     /** Replace Playlist name with their pictures */
     function loadPlaylistImage() {
@@ -142,7 +139,7 @@ waitForElement([".LeftSidebar", ".LeftSidebar__section--rootlist .SidebarList__l
                 case "reddit":                  return "discover";
                 case "made-for-you":            return "user";
                 case "recently-played":         return "time";
-                case "collection-songs":        return "collection";
+                case "collection-songs":        return "heart";
                 case "collection:albums":       return "album";
                 case "collection:artists":      return "artist";
                 case "collection:podcasts":     return "podcasts";
@@ -152,9 +149,9 @@ waitForElement([".LeftSidebar", ".LeftSidebar__section--rootlist .SidebarList__l
                  * Uncomment 3 lines below if you're using old version of Spotify that
                  * does not have Home/Browse/Radio app icons by default.
                  */
-                //case "home":					return "home";
-                //case "browse":	                return "browse";
-                //case "radio":	                return "radio";
+                //case "home":                  return "home";
+                //case "browse":                return "browse";
+                //case "radio":                 return "radio";
             }})(item.href.replace("spotify:app:", ""));
 
             replaceTextWithIcon(item.firstChild, icon);
@@ -188,12 +185,9 @@ function getAlbumInfo(uri) {
 }
 
 function isLight(hex) {
-    var bigint = parseInt(hex.replace("#",""), 16);
-    var r = (bigint >> 16) & 255;
-    var g = (bigint >> 8) & 255;
-    var b = bigint & 255;
+    var [r,g,b] = hexToRgb(hex).split(',').map(Number);
     const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-    return brightness > 155;
+    return brightness > 128;
 }
 
 function hexToRgb(hex) {
@@ -204,21 +198,13 @@ function hexToRgb(hex) {
     return r + "," + g + "," + b;
 }
 
-function LightenDarkenColor(hex, amt) {
-    var bigint = parseInt(hex.replace("#",""), 16);
-    var r = Math.max(0, (bigint >> 16) + amt);
-    var b = Math.max(0, ((bigint >> 8) & 0x00FF) + amt);
-    var g = Math.max(0, (bigint & 0x0000FF) + amt);
-    var newColor = g | (b << 8) | (r << 16);
-    return '#'+newColor.toString(16);
-}
+const LightenDarkenColor = (h, p) => '#' + [1, 3, 5].map(s => parseInt(h.substr(s, 2), 16)).map(c => parseInt((c * (100 + p)) / 100)).map(c => (c < 255 ? c : 255)).map(c => c.toString(16).padStart(2, '0')).join('');
 
-var nearTrackSpan = null
-var nearArtistSpan = null
-var mainColor = getComputedStyle(document.documentElement).getPropertyValue('--modspotify_main_fg')
-var mainColor2 = getComputedStyle(document.documentElement).getPropertyValue('--modspotify_main_bg')
-var isLightBg = isLight(mainColor2)
-var lastDoc = null
+let nearTrackSpan = null
+let nearArtistSpan = null
+let mainColor = getComputedStyle(document.documentElement).getPropertyValue('--modspotify_main_fg')
+let mainColor2 = getComputedStyle(document.documentElement).getPropertyValue('--modspotify_main_bg')
+let isLightBg = isLight(mainColor2)
 
 waitForElement([".track"], (queries) => {
     nearTrackSpan = document.createElement("span");
@@ -232,10 +218,11 @@ waitForElement([".artist"], (queries) => {
 });
 
 function updateColors(root) {    
-    colHex = mainColor
-    colRGB = hexToRgb(colHex)
-    darkerColHex = LightenDarkenColor(colHex, isLightBg ? 50 : -50)
-    darkerColRGB = hexToRgb(darkerColHex)
+    let colHex = mainColor
+    if( isLightBg ) colHex = LightenDarkenColor(colHex, -5) // vibrant color is always too bright for white bg mode
+    let colRGB = hexToRgb(colHex)
+    let darkerColHex = LightenDarkenColor(colHex, isLightBg ? 40 : -40)
+    let darkerColRGB = hexToRgb(darkerColHex)
 
     root.style.setProperty('--is_light', isLightBg ? 1 : 0)
     
@@ -260,14 +247,12 @@ function updateColors(root) {
     //root.style.setProperty('--modspotify_rgb_scrollbar_fg_and_selected_row_bg', darkerColRGB)
     root.style.setProperty('--modspotify_rgb_selected_button', darkerColRGB)
     //root.style.setProperty('--modspotify_rgb_miscellaneous_hover_bg', colRGB)
+
     // Also update the color of the icons for bright and white backgrounds to remain readable.
-    var colRGB = colRGB.split(",")
-    var brightness = Math.round(((parseInt(colRGB[0]) * 299) +
-        (parseInt(colRGB[1]) * 587) +
-        (parseInt(colRGB[2]) * 114)) / 1000);
-    var textColour = (brightness > 125) ? '#000000' : '#ffffff';
-    root.style.setProperty('--modspotify_preserve_1', textColour);
-    
+    let isLightFg = isLight(colHex);
+    if( isLightBg ) isLightFg = !isLightFg;
+    iconCol = getComputedStyle(document.documentElement).getPropertyValue(isLightFg ? '--modspotify_main_bg' : '--modspotify_secondary_fg');
+    root.style.setProperty('--modspotify_preserve_1', iconCol);
 }
 
 function updateColorsAllIframes() {
@@ -293,11 +278,11 @@ function updateColorsAllIframes() {
     if (document.querySelector("#app-artist")!=null) updateColors(document.querySelector("#app-artist").contentDocument.documentElement)
     
     // code below works but then generate many errors on page change.
-    /*frames = document.getElementsByTagName("iframe");
+    frames = document.getElementsByTagName("iframe");
     for (i=0; i<frames.length; ++i) {
         console.log(i+". "+frames[i].id)
         updateColors(frames[i].contentDocument.documentElement)
-    }*/
+    }
 }
 
 function trickHideGradient(display) {
@@ -306,29 +291,27 @@ function trickHideGradient(display) {
 }
 
 async function songchange() {
-    album_uri = Spicetify.Player.data.track.metadata.album_uri
+    let album_uri = Spicetify.Player.data.track.metadata.album_uri
     
     if (album_uri!==undefined) {
         const albumInfo = await getAlbumInfo(album_uri.replace("spotify:album:", ""))
 
-        album_date = new Date(albumInfo.year, (albumInfo.month || 1)-1, albumInfo.day|| 0)
-        recent_date = new Date()
+        let album_date = new Date(albumInfo.year, (albumInfo.month || 1)-1, albumInfo.day|| 0)
+        let recent_date = new Date()
         recent_date.setMonth(recent_date.getMonth() - 6)
         album_date = album_date.toLocaleString('default', album_date>recent_date ? { year: 'numeric', month: 'short' } : { year: 'numeric' })
         album_link = "<a title=\""+Spicetify.Player.data.track.metadata.album_title+"\" href=\""+album_uri+"\" data-uri=\""+album_uri+"\" data-interaction-target=\"album-name\" class=\"tl-cell__content\">"+Spicetify.Player.data.track.metadata.album_title+"</a>"
         
-        if (nearTrackSpan!==null) nearTrackSpan.innerText = " • " + Spicetify.Player.data.track.metadata.popularity + "%"
-        if (nearArtistSpan!==null) nearArtistSpan.innerHTML = " — " + album_link + " • " + album_date
-        
-        //waitForElement([".album-art__artist-name"], (queries) => {
-        //    queries[0].innerText += "`n" + Spicetify.Player.data.track.metadata.album_title + " • " + album_date
-        //}, 1000)
+        if (nearTrackSpan !== null)
+            nearTrackSpan.innerText = " • " + Spicetify.Player.data.track.metadata.popularity + "%"
+        if (nearArtistSpan !== null)
+            nearArtistSpan.innerHTML = " — " + album_link + " • " + album_date
     } else if (Spicetify.Player.data.track.metadata.album_track_number==0) {
-        // podcast?
+        // podcast
         nearTrackSpan.innerText = ""
         nearArtistSpan.innerText = " — " + Spicetify.Player.data.track.metadata.album_title
     } else if (Spicetify.Player.data.track.metadata.is_local=="true") {
-        // local?
+        // local file
         nearTrackSpan.innerText = ""
         nearArtistSpan.innerText = " — " + Spicetify.Player.data.track.metadata.album_title
     } else {
@@ -336,17 +319,23 @@ async function songchange() {
         // todo: retry only once?
         setTimeout(songchange, 200)
     }
-    
+
     document.documentElement.style.setProperty('--image_url', 'url("'+Spicetify.Player.data.track.metadata.image_url+'")')
 
     Spicetify.colorExtractor(Spicetify.Player.data.track.uri)
         .then((colors) => {
             mainColor = colors['LIGHT_VIBRANT']
-            while( mainColor.length!=4 && mainColor.length<7 ) { mainColor = mainColor.replace("#", "#0"); }
 
-            trickHideGradient('none')
-            updateColors(document.documentElement) // main app
+            // Spotify returns hex colors with improper length
+            while( mainColor.length!=4 && mainColor.length<7 )
+                { mainColor = mainColor.replace("#", "#0"); }
+
+            // main app
+            trickHideGradient('none') // bottom left gradient looks bad when changing color
+            updateColors(document.documentElement)
             setTimeout(trickHideGradient, 1500, 'block') //animation lasts 1.5sec
+
+            // most pages are iframes, they need a specific color update
             updateColorsAllIframes()
         }, (err) => {
             console.log(err)
@@ -359,7 +348,8 @@ async function songchange() {
 Spicetify.Player.addEventListener("songchange", songchange)
 Spicetify.Player.addEventListener("appchange", ({"data": data}) => {
     //console.log(data.container)
-    //lastDoc = data.container.contentDocument.documentElement || data.container
     setTimeout(updateColorsAllIframes, 200)
-    //updateColorsAllIframes()
 })
+
+// Add "About" item in profile menu
+new Spicetify.Menu.Item("About", false, () => window.open("spotify:app:about")).register();
